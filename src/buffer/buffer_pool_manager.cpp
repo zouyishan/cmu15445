@@ -216,21 +216,21 @@ auto BufferPoolManager::FetchPageBasic(page_id_t page_id) -> BasicPageGuard {
 }
 
 auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard { 
-  std::lock_guard<std::mutex> lg(latch_);
+  // std::lock_guard<std::mutex> lg(latch_);
   auto page = FetchPage(page_id);
   page->RLatch();
   return {this, page}; 
 }
 
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard { 
-  std::lock_guard<std::mutex> lg(latch_);
+  // std::lock_guard<std::mutex> lg(latch_);
   auto page = FetchPage(page_id);
   page->WLatch();
   return {this, page}; 
 }
 
 auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
-  std::lock_guard<std::mutex> lg(latch_);
+  // std::lock_guard<std::mutex> lg(latch_);
   return {this, NewPage(page_id)}; 
 }
 

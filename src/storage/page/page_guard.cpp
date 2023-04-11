@@ -19,6 +19,7 @@ void BasicPageGuard::Drop() {
 }
 
 auto BasicPageGuard::operator=(BasicPageGuard &&that) noexcept -> BasicPageGuard & { 
+    that.Drop();
     this->page_ = that.page_;
     this->bpm_ = that.bpm_;
     this->is_dirty_ = that.is_dirty_;
@@ -49,10 +50,10 @@ void ReadPageGuard::Drop() {
 }
 
 ReadPageGuard::~ReadPageGuard() {
-    if (guard_.bpm_ != nullptr && guard_.page_ != nullptr) {
-        guard_.bpm_->UnpinPage(guard_.page_->GetPageId(), guard_.is_dirty_);
-        guard_.page_->RUnlatch();
-    }
+    // if (guard_.bpm_ != nullptr && guard_.page_ != nullptr) {
+    //     guard_.bpm_->UnpinPage(guard_.page_->GetPageId(), guard_.is_dirty_);
+    //     guard_.page_->RUnlatch();
+    // }
 }  // NOLINT
 
 WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept = default;
