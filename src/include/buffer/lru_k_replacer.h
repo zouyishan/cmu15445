@@ -17,23 +17,46 @@
 #include <mutex>  // NOLINT
 #include <unordered_map>
 #include <vector>
+#include <chrono>
 
 #include "common/config.h"
 #include "common/macros.h"
+#include "lru_replacer.h"
+#include "common/exception.h"
 
 namespace bustub {
 
 enum class AccessType { Unknown = 0, Get, Scan };
 
+[[maybe_unused]] static size_t get_time_() {
+    std::chrono::milliseconds ms = std::chrono::duration_cast< std::chrono::milliseconds >(
+        std::chrono::system_clock::now().time_since_epoch()
+    );
+    return ms.count();
+}
+
 class LRUKNode {
- private:
+ public:
   /** History of last seen K timestamps of this page. Least recent timestamp stored in front. */
   // Remove maybe_unused if you start using them. Feel free to change the member variables as you want.
+  LRUKNode(frame_id_t fid, size_t k) : fid_(fid), k_(k) {};
 
-  [[maybe_unused]] std::list<size_t> history_;
-  [[maybe_unused]] size_t k_;
-  [[maybe_unused]] frame_id_t fid_;
-  [[maybe_unused]] bool is_evictable_{false};
+  void add_history(size_t time_stamp) {
+    history_.push_back(time_stamp);
+  }
+
+  bool is_old_cache() {
+    return history_.size() >= k_;
+  }
+
+  size_t get_history_size() {
+    return history_.size();
+  }
+
+  std::list<size_t> history_;
+  frame_id_t fid_;
+  size_t k_;
+  bool is_evictable_{false};
 };
 
 /**
@@ -65,7 +88,7 @@ class LRUKReplacer {
    *
    * @brief Destroys the LRUReplacer.
    */
-  ~LRUKReplacer() = default;
+  ~LRUKReplacer();
 
   /**
    * TODO(P1): Add implementation
@@ -150,12 +173,14 @@ class LRUKReplacer {
  private:
   // TODO(student): implement me! You can replace these member variables as you like.
   // Remove maybe_unused if you start using them.
-  [[maybe_unused]] std::unordered_map<frame_id_t, LRUKNode> node_store_;
-  [[maybe_unused]] size_t current_timestamp_{0};
-  [[maybe_unused]] size_t curr_size_{0};
-  [[maybe_unused]] size_t replacer_size_;
-  [[maybe_unused]] size_t k_;
-  [[maybe_unused]] std::mutex latch_;
+  LRUReplacer *old_cache_list_, *new_cache_list_;
+  // logic timestamp
+  size_t current_timestamp_{0};
+  size_t curr_size_{0};
+  size_t num_frames_{0};
+  size_t k_{0};
+  std::mutex latch_;
+  std::unordered_map<frame_id_t, LRUKNode*> map_;
 };
 
 }  // namespace bustub

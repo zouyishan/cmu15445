@@ -45,8 +45,16 @@ class LRUReplacer : public Replacer {
 
   auto Size() -> size_t override;
 
+  void Access(frame_id_t frame_id);
+
  private:
-  // TODO(student): implement me!
+  std::list<frame_id_t> list_;
+  // true  : pin
+  // false : unpin
+  // std::unordered_map<frame_id_t, bool> map_;
+  size_t cur_size_{0};
+  std::mutex latch_;
+  size_t num_pages_;
 };
 
 }  // namespace bustub
